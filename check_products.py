@@ -5,6 +5,7 @@ import urllib.request
 import os
 import shutil
 import datetime
+import pandas as pd
 
 
 def myFunc(e):
@@ -21,7 +22,7 @@ def addProducts(filename):
     att1_val = []
     att2_name = ""
     att2_val = []
-    #print(*products, sep='\n')
+    # print(*products, sep='\n')
     for variants in root.findall('item'):
         skuMain = variants.find('stockCode').text
         isVariant = False
@@ -41,7 +42,7 @@ def addProducts(filename):
                                          "stok": int(stok),
                                          "status": variants[2].text,
                                          "fiyat": round(float(price)+float(price)*int(variants[15].text)/100, 2),
-                                         "vergi": "",
+                                         "vergi": variants[27].text,
                                          "indirim": "",
                                          "indirimli fiyat": "",
                                          "product type": "variation",
@@ -55,9 +56,9 @@ def addProducts(filename):
                                          "ürün adı": variants[1].text,
                                          "stok": int(stok),
                                          "status": variants[2].text,
-                                         "fiyat": float(price),
+                                         "fiyat": round(float(price)+float(price)*int(variants[15].text)/100, 2),
                                          "vergi": "",
-                                         "indirim": "",
+                                         "indirim": variants[27].text,
                                          "indirimli fiyat": "",
                                          "product type": "variation",
                                          "parent": variants[0].text,
@@ -117,12 +118,19 @@ def addProducts(filename):
                              "pic4": variants[23].text})
     return products
 
+
+def removeProducs(products):
+    contents = pd.read_csv('products.csv', delimiter=',',
+                           encoding='ISO-8859-1', index_col=2)
+    for product in products:
+        print(product['stok kodu'])
+    contents.to_csv(r'products.csv')
 # dosya adı için bugünün stringini oluştur
-##today= str(datetime.datetime.now().day) + str(datetime.datetime.now().month) + str(datetime.datetime.now().year)
+# today= str(datetime.datetime.now().day) + str(datetime.datetime.now().month) + str(datetime.datetime.now().year)
 
 # bugünkü xmli indir
-##url = 'http://www.modacelikler.com/index.php?do=catalog/output&pCode=2134241870'
-##urllib.request.urlretrieve(url, 'index.xml')
+# url = 'http://www.modacelikler.com/index.php?do=catalog/output&pCode=2134241870'
+# urllib.request.urlretrieve(url, 'index.xml')
 
 
 productsOld = addProducts('index_old.xml')
@@ -146,23 +154,24 @@ for product in productsOld:
     for productNew in productsNew:
         if product["stok kodu"] == productNew["stok kodu"]:
             kont = True
-            if product["indirimli fiyat"] == productNew["indirimli fiyat"]:
-                kont1 = True
-            if kont1 == False:
-                if product["indirimli fiyat"] > productNew["indirimli fiyat"] or product["indirimli fiyat"] == 0.0:
-                    indirimegirenlerList.append({"stok kodu": product["stok kodu"],
-                                                 "eski fiyat": product["indirimli fiyat"],
-                                                 "yeni fiyat": productNew["indirimli fiyat"]})
-                else:
-                    indirimibitenlerList.append({"stok kodu": product["stok kodu"],
-                                                 "eski fiyat": product["indirimli fiyat"],
-                                                 "yeni fiyat": productNew["indirimli fiyat"]})
-            if product["fiyat"] == productNew["fiyat"]:
-                kont2 = True
-            if kont2 == False:
-                fiyatidegisenlerList.append({"stok kodu": product["stok kodu"],
-                                             "Eski fiyat": product["fiyat"],
-                                             "Yeni fiyat": productNew["fiyat"]})
+            if product['product type'] != 'variable':
+                if product["indirimli fiyat"] == productNew["indirimli fiyat"]:
+                    kont1 = True
+                if kont1 == False:
+                    if product["indirimli fiyat"] > productNew["indirimli fiyat"] or product["indirimli fiyat"] == 0.0:
+                        indirimegirenlerList.append({"stok kodu": product["stok kodu"],
+                                                     "eski fiyat": product["indirimli fiyat"],
+                                                     "yeni fiyat": round(float(productNew["indirimli fiyat"])+float(productNew["indirimli fiyat"])*float(productNew["vergi"]/100), 2)})
+                    else:
+                        indirimibitenlerList.append({"stok kodu": product["stok kodu"],
+                                                     "eski fiyat": product["indirimli fiyat"],
+                                                     "yeni fiyat": round(float(productNew["indirimli fiyat"])+float(productNew["indirimli fiyat"])*float(productNew["vergi"])/100, 2)})
+                if product["fiyat"] == productNew["fiyat"]:
+                    kont2 = True
+                if kont2 == False:
+                    fiyatidegisenlerList.append({"stok kodu": product["stok kodu"],
+                                                 "Eski fiyat": product["fiyat"],
+                                                 "Yeni fiyat": productNew["fiyat"]})
             if product["stok"] == productNew["stok"]:
                 kont3 = True
             if kont3 == False:
@@ -205,6 +214,6 @@ print(*stoguazalanlarList, sep='\n')
 print('\033[1m' + "stogu artanlar:" + '\033[0m')
 print(*stoguartanlarList, sep='\n')
 # dünkü xmli archive taşı
-##shutil.move('index_old.xml', 'xml_archive/stock_' + today + '.xml')
+# shutil.move('index_old.xml', 'xml_archive/stock_' + today + '.xml')
 # bugünkü xmli işlenmiş xml dosyası yap
-##os.rename('index.xml', 'index_old.xml')
+# os.rename('index.xml', 'index_old.xml')
