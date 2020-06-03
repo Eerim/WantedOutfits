@@ -1,73 +1,45 @@
-import xml.etree.ElementTree as ET
-tree = ET.parse('index_old.xml')
-root = tree.getroot()
+import pandas as pd
 
 
-def myFunc(e):
-    return e['stok kodu']
+def removeProducs(products):
+    contents = pd.DataFrame(pd.read_csv('products.csv', delimiter=','))
+    for product in products:
+        contents = contents.drop(
+            contents[contents.SKU == product['stok kodu']].index, axis=0)
+        # contents = contents.drop[contents[contents['SKU']
+        #                                  == product['stok kodu']].index]
+        print(contents)
 
 
-products = []
+def slaepricechange(products):
+    contents = pd.DataFrame(pd.read_csv('products.csv', delimiter=','))
+    for product in products:
+        print(product['stok kodu'])
+        contents.loc[contents.SKU ==
+                     product['stok kodu'], ['Sale price']] = product['yeni fiyat']
+        print(contents.loc[contents.SKU ==
+                           product['stok kodu'], ['Sale price']])
 
-# for child in root:
-#    try:
-#        products.append( {"stok kodu" : child[0][0].tag })
-#    except IndexError:
-#        products.append( {"stok kodu" : "simple" })
-# products.sort(key=myFunc)
-options = []
-ekleneceklerList = []
-#print(*products, sep='\n')
-for variants in root.findall('item'):
-    isVariant = False
-    for variant in variants.findall('variants'):
-        for subbranks in variant.findall("variant"):
-            isVariant = True
-            sku = subbranks.find('vStockCode').text
-            stok = subbranks.find('vStockAmount').text
-            price = subbranks.find('vPrice1').text
-            for opts in subbranks.findall("options"):
-                for opttions in opts.findall("option"):
-                    options.append(
-                        (opttions.find("variantName").text, opttions.find("variantValue").text))
-                if len(options) == 1:
-                    ekleneceklerList.append({"stok kodu": sku,
-                                             "ürün adı": variants[1].text,
-                                             "stok": int(stok),
-                                             "status": variants[2].text,
-                                             "fiyat": round(float(price)+float(price)*int(variants[15].text)/100, 2),
-                                             "vergi": "",
-                                             "indirim": "",
-                                             "indirimli fiyat": "",
-                                             "product type": "variation",
-                                             "parent": sku[:sku.find("_")],
-                                             "att1 name": options[0][0],
-                                             "att1 val": options[0][1]})
-                else:
-                    ekleneceklerList.append({"stok kodu": sku,
-                                             "ürün adı": variants[1].text,
-                                             "stok": int(stok),
-                                             "status": variants[2].text,
-                                             "fiyat": float(price),
-                                             "vergi": "",
-                                             "indirim": "",
-                                             "indirimli fiyat": "",
-                                             "product type": "variation",
-                                             "parent": sku[:sku.find("_")],
-                                             "att1 name": options[0][0],
-                                             "att1 val": options[0][1],
-                                             "att2 name": options[1][0],
-                                             "att2 val": options[1][1]})
-                options = []
-    if isVariant == False:
-        ekleneceklerList.append({"stok kodu": variants[0].text,
-                                 "ürün adı": variants[1].text,
-                                 "stok": variants[17].text,
-                                 "status": variants[2].text,
-                                 "fiyat": float(price),
-                                 "vergi": "",
-                                 "indirim": "",
-                                 "indirimli fiyat": "",
-                                 "product type": "simple",
-                                 })
-print(*ekleneceklerList, sep="\n")
+
+def regularpricechange(products):
+    contents = pd.DataFrame(pd.read_csv('products.csv', delimiter=','))
+    for product in products:
+        print(product['stok kodu'])
+        contents.loc[contents.SKU ==
+                     product['stok kodu'], ['Regular price']] = product['yeni fiyat']
+        print(contents.loc[contents.SKU ==
+                           product['stok kodu'], ['Regular price']])
+
+
+def stockchange(products):
+    contents = pd.DataFrame(pd.read_csv('products.csv', delimiter=','))
+    for product in products:
+        print(product['stok kodu'])
+        contents.loc[contents.SKU ==
+                     product['stok kodu'], ['Stock']] = product['yeni stok']
+        print(contents.loc[contents.SKU ==
+                           product['stok kodu'], ['Stock']])
+
+
+products = [{"stok kodu": "MD2042", 'eski stok': 3, 'yeni stok': 5}]
+stockchange(products)
