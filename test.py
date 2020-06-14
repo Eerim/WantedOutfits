@@ -6,15 +6,12 @@ def removeProducs(products):
     for product in products:
         contents = contents.drop(
             contents[contents.SKU == product['stok kodu']].index, axis=0)
-        # contents = contents.drop[contents[contents['SKU']
-        #                                  == product['stok kodu']].index]
         print(contents)
 
 
-def slaepricechange(products):
+def salepricechange(products):
     contents = pd.DataFrame(pd.read_csv('products.csv', delimiter=','))
     for product in products:
-        print(product['stok kodu'])
         contents.loc[contents.SKU ==
                      product['stok kodu'], ['Sale price']] = product['yeni fiyat']
         print(contents.loc[contents.SKU ==
@@ -41,5 +38,24 @@ def stockchange(products):
                            product['stok kodu'], ['Stock']])
 
 
-products = [{"stok kodu": "MD2042", 'eski stok': 3, 'yeni stok': 5}]
-stockchange(products)
+def statuschange(products):
+    contents = pd.DataFrame(pd.read_csv('products.csv', delimiter=','))
+    for product in products:
+        print(product['stok kodu'])
+        contents.loc[contents.SKU ==
+                     product['stok kodu'], ['Published']] = product['yeni status']
+        print(contents.loc[contents.SKU ==
+                           product['stok kodu'], ['Published']])
+        print(contents)
+
+
+def addproducts(products):
+    contents = pd.DataFrame(pd.read_csv('products.csv', delimiter=','))
+    print(contents)
+    for product in products:
+        contents = contents.append(product, ignore_index=True)
+        print(contents)
+
+
+products = [{"stok kodu": "MD7777"}, {"stok kodu": "MD7778"}]
+addproducts(products)
