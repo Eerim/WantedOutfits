@@ -42,13 +42,23 @@ def addProducts(filename):
                                          "stok": int(stok),
                                          "status": variants[2].text,
                                          "fiyat": round(float(price)+float(price)*int(variants[15].text)/100, 2),
-                                         "vergi": variants[27].text,
+                                         "vergi": variants[15].text,
                                          "indirim": "",
                                          "indirimli fiyat": "",
                                          "product type": "variation",
                                          "parent": variants[0].text,
                                          "att1 name": options[0][0],
-                                         "att1 val": options[0][1]})
+                                         "att1 val": options[0][1],
+                                         "tax class": "parent",
+                                         "pic1": "",
+                                         "pic2": "",
+                                         "pic3": "",
+                                         "pic4": "",
+                                         "ana kategori": variants[6].text,
+                                         "alt kategori": variants[7].text,
+                                         "açıklama": variants[25].text,
+                                         "att2 name": "",
+                                         "att2 val": ""})
                         att1_name = options[0][0]
                         att1_val.append(options[0][1])
                     else:
@@ -65,7 +75,16 @@ def addProducts(filename):
                                          "att1 name": options[0][0],
                                          "att1 val": options[0][1],
                                          "att2 name": options[1][0],
-                                         "att2 val": options[1][1]})
+                                         "att2 val": options[1][1],
+                                         "tax class": "parent",
+                                         "pic1": "",
+                                         "pic2": "",
+                                         "pic3": "",
+                                         "pic4": "",
+                                         "ana kategori": variants[6].text,
+                                         "alt kategori": variants[7].text,
+                                         "açıklama": variants[25].text,
+                                         "tax class": ""})
                         att1_name = options[0][0]
                         if len(att1_val) != 0:
                             if att1_val.count(options[0][1]) == 0:
@@ -94,10 +113,14 @@ def addProducts(filename):
                                      "att1 val": att1_val,
                                      "att2 name": att2_name,
                                      "att2 val": att2_val,
-                                     "pic1": variants[20].text,
-                                     "pic2": variants[21].text,
-                                     "pic3": variants[22].text,
-                                     "pic4": variants[23].text})
+                                     "pic1": variants[20].text if variants[20].text == None else variants[20].text if variants[20].text.find('?') == -1 else variants[20].text[:variants[20].text.find('?')],
+                                     "pic2": variants[21].text if variants[21].text == None else variants[21].text if variants[21].text.find('?') == -1 else variants[21].text[:variants[21].text.find('?')],
+                                     "pic3": variants[22].text if variants[22].text == None else variants[22].text if variants[22].text.find('?') == -1 else variants[22].text[:variants[22].text.find('?')],
+                                     "pic4": variants[23].text if variants[23].text == None else variants[23].text if variants[23].text.find('?') == -1 else variants[23].text[:variants[23].text.find('?')],
+                                     "ana kategori": variants[6].text,
+                                     "alt kategori": variants[7].text,
+                                     "açıklama": variants[25].text,
+                                     "tax class": ""})
                     att1_val.clear()
                     att2_val.clear()
                     att1_name = ""
@@ -112,26 +135,22 @@ def addProducts(filename):
                              "indirim": variants[27].text,
                              "indirimli fiyat": float(variants[26].text),
                              "product type": "simple",
-                             "pic1": variants[20].text,
-                             "pic2": variants[21].text,
-                             "pic3": variants[22].text,
-                             "pic4": variants[23].text})
+                             "pic1": variants[20].text if variants[20].text == None else variants[20].text if variants[20].text.find('?') == -1 else variants[20].text[:variants[20].text.find('?')],
+                             "pic2": variants[21].text if variants[21].text == None else variants[21].text if variants[21].text.find('?') == -1 else variants[21].text[:variants[21].text.find('?')],
+                             "pic3": variants[22].text if variants[22].text == None else variants[22].text if variants[22].text.find('?') == -1 else variants[22].text[:variants[22].text.find('?')],
+                             "pic4": variants[23].text if variants[23].text == None else variants[23].text if variants[23].text.find('?') == -1 else variants[23].text[:variants[23].text.find('?')],
+                             "ana kategori": variants[6].text,
+                             "alt kategori": variants[7].text,
+                             "açıklama": variants[25].text})
     return products
 
 
-def removeProducs(products):
-    contents = pd.read_csv('products.csv', delimiter=',',
-                           encoding='ISO-8859-1', index_col=2)
-    for product in products:
-        print(product['stok kodu'])
-    contents.to_csv(r'products.csv')
 # dosya adı için bugünün stringini oluştur
 # today= str(datetime.datetime.now().day) + str(datetime.datetime.now().month) + str(datetime.datetime.now().year)
 
 # bugünkü xmli indir
 # url = 'http://www.modacelikler.com/index.php?do=catalog/output&pCode=2134241870'
 # urllib.request.urlretrieve(url, 'index.xml')
-
 
 productsOld = addProducts('index_old.xml')
 productsNew = addProducts('index.xml')
@@ -144,12 +163,13 @@ indirimibitenlerList = []
 fiyatidegisenlerList = []
 stoguazalanlarList = []
 stoguartanlarList = []
-
+statusdegisenlerlist = []
 for product in productsOld:
     kont = False
     kont1 = False
     kont2 = False
     kont3 = False
+    kont4 = False
     i += 1
     for productNew in productsNew:
         if product["stok kodu"] == productNew["stok kodu"]:
@@ -183,6 +203,12 @@ for product in productsOld:
                     stoguartanlarList.append({"stok kodu": product["stok kodu"],
                                               "eski stok": product["stok"],
                                               "yeni stok": productNew["stok"]})
+            if product["status"] == productNew["status"]:
+                kont4 = True
+            if kont4 == False:
+                statusdegisenlerlist.append({"stok kodu": product["stok kodu"],
+                                             "eski status": product["status"],
+                                             "yeni status": productNew["status"]})
             break
     if kont == False:
         cikarilacaklarList.append({"stok kodu": product["stok kodu"]})
@@ -198,7 +224,38 @@ for productNew in productsNew:
 #            print("ok " + str(i))
             break
     if kont == False:
-        ekleneceklerList.append({"stok kodu": productNew["stok kodu"]})
+        ekleneceklerList.append({"SKU": productNew["stok kodu"],
+                                 "Type": productNew["product type"],
+                                 "Name": productNew["ürün adı"],
+                                 "Published": productNew["status"],
+                                 "Description": productNew["açıklama"],
+                                 "Stock": productNew["stok"],
+                                 "Sale Price": productNew["indirimli fiyat"],
+                                 "Regular Price": productNew["fiyat"],
+                                 "Images": "" if productNew["product type"] == "variation" else
+                                 productNew["pic1"]+","+productNew["pic2"] +
+                                 ","+productNew["pic3"]+","+productNew["pic4"]
+                                 if productNew["pic4"] != None else productNew["pic1"]+","+productNew["pic2"] + ","+productNew["pic3"]
+                                 if productNew["pic3"] != None else productNew["pic1"]+","+productNew["pic2"]
+                                 if productNew["pic2"] != None else productNew["pic1"],
+                                 "Attribute 1 name": productNew["att1 name"],
+                                 "Attribute 1 value(s)": productNew["att1 val"],
+                                 "Attribute 2 name": productNew["att2 name"],
+                                 "Attribute 2 value(s)": productNew["att2 val"],
+                                 "Categories": "All products, All products > Clothing"
+                                 if productNew["ana kategori"] == "Takımlar" else "All products, All products > Clothing, All products > Clothing > Dresses "
+                                 if productNew["alt kategori"] == "Elbise" else "All products, All products > Clothing, All products > Clothing > Tops > Shirts &amp; Blouses, All products > Clothing > Tops"
+                                 if productNew["alt kategori"] == "Gömlek" or productNew["alt kategori"] == "Bluz" or productNew["alt kategori"] == "Kazak" else "All products, All products > Clothing, All products > Clothing > Coats"
+                                 if productNew["alt kategori"] == "Palto / Kaban" else "All products, All products > Clothing > Tops > Cardigans, All products > Clothing, All products > Clothing > Tops"
+                                 if productNew["alt kategori"] == "Hırka" else "All products, All products > Clothing, All products > Clothing > Tops > T-shirts, All products > Clothing > Tops"
+                                 if productNew["alt kategori"] == "Tişört" else "All products, All products > Clothing, All products > Clothing > Tops > Jackets, All products > Clothing > Tops"
+                                 if productNew["alt kategori"] == "Ceket" else "All products, All products > Clothing, All products > Clothing > Tops > Jumpers, All products > Clothing > Tops"
+                                 if productNew["alt kategori"] == "Sweat" else "All products, All products > Clothing, All products > Clothing > Trousers"
+                                 if productNew["alt kategori"] == "Pantolon" else "All products, All products > Clothing, All products > Clothing > Skirts"
+                                 if productNew["alt kategori"] == "Etek" else "All products, All products > Clothing, All products > Clothing > Leggings"
+                                 if productNew["alt kategori"] == "Tayt" else"All products, All products > Clothing, All products > Clothing > Jeans"
+                                 if productNew["alt kategori"] == "Jean Pantolon" else "All products, All products > Clothing"
+                                 })
 print('\033[1m' + "Çıkarılacak ürünler:" + '\033[0m')
 print(*cikarilacaklarList, sep='\n')
 print('\033[1m' + "Eklenecek ürünler:" + '\033[0m')
@@ -213,6 +270,8 @@ print('\033[1m' + "stogu azalanlar:" + '\033[0m')
 print(*stoguazalanlarList, sep='\n')
 print('\033[1m' + "stogu artanlar:" + '\033[0m')
 print(*stoguartanlarList, sep='\n')
+print('\033[1m' + "status degisenler:" + '\033[0m')
+print(*statusdegisenlerlist, sep='\n')
 # dünkü xmli archive taşı
 # shutil.move('index_old.xml', 'xml_archive/stock_' + today + '.xml')
 # bugünkü xmli işlenmiş xml dosyası yap
