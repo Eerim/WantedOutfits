@@ -8,6 +8,61 @@ import datetime
 import pandas as pd
 
 
+def removeProducts(products):
+    contents = pd.DataFrame(pd.read_csv('products.csv', delimiter=','))
+    for product in products:
+        contents = contents.drop(
+            contents[contents.SKU == product['stok kodu']].index, axis=0)
+        contents.to_csv(r'products.csv', index=False)
+    print(len(products), " product(s) has been deleted.")
+
+
+def salepricechange(products):
+    contents = pd.DataFrame(pd.read_csv('products.csv', delimiter=','))
+    for product in products:
+        contents.loc[contents.SKU ==
+                     product['stok kodu'], ['Sale price']] = product['yeni fiyat']
+        contents.to_csv(r'products.csv', index=False)
+    print(len(products), " product(s) sale prices has been changed.")
+
+
+def regularpricechange(products):
+    contents = pd.DataFrame(pd.read_csv('products.csv', delimiter=','))
+    for product in products:
+        print(product['stok kodu'])
+        contents.loc[contents.SKU ==
+                     product['stok kodu'], ['Regular price']] = product['yeni fiyat']
+        contents.to_csv(r'products.csv', index=False)
+    print(len(products), " product(s) regular prices has been changed.")
+
+
+def stockchange(products):
+    contents = pd.DataFrame(pd.read_csv('products.csv', delimiter=','))
+    for product in products:
+        contents.loc[contents.SKU ==
+                     product['stok kodu'], ['Stock']] = product['yeni stok']
+        contents.to_csv(r'products.csv', index=False)
+    print(len(products), " product(s) stock info has been changed.")
+
+
+def statuschange(products):
+    contents = pd.DataFrame(pd.read_csv('products1.csv', delimiter=','))
+    for product in products:
+        contents.loc[contents.SKU ==
+                     product['stok kodu'], ['Published']] = product['yeni status']
+        contents.to_csv(r'products.csv', index=False)
+    print(len(products), " product(s) published info has been changed.")
+
+
+def addproducts2dataset(products):
+    contents = pd.DataFrame(pd.read_csv('products.csv', delimiter=','))
+    for product in products:
+        contents = contents.append(product, ignore_index=True)
+        contents.to_csv(r'products.csv', index=False)
+        print(product["SKU"])
+    print(len(products), " product(s) added. Please check NAME, DESCRIPTION, ATTIRIBUTE NAMES on database")
+
+
 def myFunc(e):
     return e['stok kodu']
 
@@ -144,7 +199,12 @@ def addProducts(filename):
                              "ana kategori": variants[6].text,
                              "alt kategori": variants[7].text,
                              "açıklama": variants[25].text,
-                             "parent": ""})
+                             "parent": "",
+                             "att1 name": "",
+                             "att1 val": "",
+                             "att2 name": "",
+                             "att2 val": "",
+                             "tax class": ""})
     return products
 
 
@@ -264,7 +324,23 @@ for productNew in productsNew:
                                      if productNew["alt kategori"] == "Pantolon" else "All products, All products > Clothing, All products > Clothing > Skirts"
                                      if productNew["alt kategori"] == "Etek" else "All products, All products > Clothing, All products > Clothing > Leggings"
                                      if productNew["alt kategori"] == "Tayt" else"All products, All products > Clothing, All products > Clothing > Jeans"
-                                     if productNew["alt kategori"] == "Jean Pantolon" else "All products, All products > Clothing"
+                                     if productNew["alt kategori"] == "Jean Pantolon" else "All products, All products > Clothing",
+                                     "Is featured?": "0",
+                                     "Visibility in catalogue": "visible",
+                                     "Tax status": "taxable",
+                                     "Tax class": "parent"
+                                     if productNew["product type"] == "varitaion" else "",
+                                     "In stock?": "1"
+                                     if int(productNew["stok"]) > 0 else "0",
+                                     "Backorders allowed?": "0",
+                                     "Sold individually?": "0",
+                                     "Allow customer reviews?": "1",
+                                     "Parent": productNew["parent"],
+                                     "Position": "0",
+                                     "Attribute 1 visible": "1"
+                                     if productNew["product type"] == "variable" else "",
+                                     "Attribute 2 visible": "1"
+                                     if productNew["product type"] == "variable" and len(productNew["att2 name"]) != 0 else ""
                                      })
         except:
             ekleneceklerList.append({"SKU": productNew["stok kodu"],
@@ -318,22 +394,12 @@ for productNew in productsNew:
                                      "Attribute 2 visible": "1"
                                      if productNew["product type"] == "variable" and len(productNew["att2 name"]) != 0 else ""
                                      })
-print('\033[1m' + "Çıkarılacak ürünler:" + '\033[0m')
-print(*cikarilacaklarList, sep='\n')
-print('\033[1m' + "Eklenecek ürünler:" + '\033[0m')
-print(*ekleneceklerList, sep='\n')
-print('\033[1m' + "indirime girenler:" + '\033[0m')
-print(*indirimegirenlerList, sep='\n')
-print('\033[1m' + "indirimi bitenler:" + '\033[0m')
-print(*indirimibitenlerList, sep='\n')
-print('\033[1m' + "fiyatı değişenler:" + '\033[0m')
-print(*fiyatidegisenlerList, sep='\n')
-print('\033[1m' + "stogu azalanlar:" + '\033[0m')
-print(*stoguazalanlarList, sep='\n')
-print('\033[1m' + "stogu artanlar:" + '\033[0m')
-print(*stoguartanlarList, sep='\n')
-print('\033[1m' + "status degisenler:" + '\033[0m')
-print(*statusdegisenlerlist, sep='\n')
+removeProducts(cikarilacaklarList)
+addproducts2dataset(ekleneceklerList)
+salepricechange(indirimegirenlerList + indirimibitenlerList)
+regularpricechange(fiyatidegisenlerList)
+stockchange(stoguartanlarList + stoguazalanlarList)
+statuschange(statusdegisenlerlist)
 # dünkü xmli archive taşı
 # shutil.move('index_old.xml', 'xml_archive/stock_' + today + '.xml')
 # bugünkü xmli işlenmiş xml dosyası yap
