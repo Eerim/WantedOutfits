@@ -6,6 +6,7 @@ import os
 import shutil
 import datetime
 import pandas as pd
+import copy
 
 
 def removeProducts(products):
@@ -165,9 +166,10 @@ def addProducts(filename):
                                      "indirimli fiyat": float(variants[26].text),
                                      "product type": "variable",
                                      "att1 name": att1_name,
-                                     "att1 val": att1_val,
+                                     "att1 val": copy.deepcopy(att1_val),
                                      "att2 name": att2_name,
-                                     "att2 val": att2_val,
+                                     "att2 val": copy.deepcopy(att1_val)
+                                     if att2_val != [] else "",
                                      "pic1": variants[20].text if variants[20].text == None else variants[20].text if variants[20].text.find('?') == -1 else variants[20].text[:variants[20].text.find('?')],
                                      "pic2": variants[21].text if variants[21].text == None else variants[21].text if variants[21].text.find('?') == -1 else variants[21].text[:variants[21].text.find('?')],
                                      "pic3": variants[22].text if variants[22].text == None else variants[22].text if variants[22].text.find('?') == -1 else variants[22].text[:variants[22].text.find('?')],
@@ -396,7 +398,7 @@ for productNew in productsNew:
                                      if productNew["product type"] == "variable" and len(productNew["att2 name"]) != 0 else ""
                                      })
 removeProducts(cikarilacaklarList)
-addproducts2dataset(ekleneceklerList)
+# addproducts2dataset(ekleneceklerList)
 salepricechange(indirimegirenlerList + indirimibitenlerList)
 regularpricechange(fiyatidegisenlerList)
 stockchange(stoguartanlarList + stoguazalanlarList)
