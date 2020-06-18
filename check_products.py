@@ -59,7 +59,6 @@ def addproducts2dataset(products):
     for product in products:
         contents = contents.append(product, ignore_index=True)
         contents.to_csv(r'products.csv', index=False)
-        print(product["SKU"])
     print(len(products), " product(s) added. Please check NAME, DESCRIPTION, ATTIRIBUTE NAMES on database")
 
 
@@ -111,7 +110,7 @@ def addProducts(filename):
                                          "pic4": "",
                                          "ana kategori": variants[6].text,
                                          "alt kategori": variants[7].text,
-                                         "açıklama": variants[25].text,
+                                         "açıklama": "",
                                          "att2 name": "",
                                          "att2 val": "",
                                          "parent": variants[0].text})
@@ -139,7 +138,7 @@ def addProducts(filename):
                                          "pic4": "",
                                          "ana kategori": variants[6].text,
                                          "alt kategori": variants[7].text,
-                                         "açıklama": variants[25].text,
+                                         "açıklama": "",
                                          "parent": variants[0].text})
                         att1_name = options[0][0]
                         if len(att1_val) != 0:
@@ -209,11 +208,12 @@ def addProducts(filename):
 
 
 # dosya adı için bugünün stringini oluştur
-# today= str(datetime.datetime.now().day) + str(datetime.datetime.now().month) + str(datetime.datetime.now().year)
+today = str(datetime.datetime.now().day) + \
+    str(datetime.datetime.now().month) + str(datetime.datetime.now().year)
 
 # bugünkü xmli indir
-# url = 'http://www.modacelikler.com/index.php?do=catalog/output&pCode=2134241870'
-# urllib.request.urlretrieve(url, 'index.xml')
+url = 'http://www.modacelikler.com/index.php?do=catalog/output&pCode=2134241870'
+urllib.request.urlretrieve(url, 'index.xml')
 
 productsOld = addProducts('index_old.xml')
 productsNew = addProducts('index.xml')
@@ -282,18 +282,19 @@ for productNew in productsNew:
     kont = False
     i += 1
     for product in productsOld:
-        translator = Translator()
         if product["stok kodu"] == productNew["stok kodu"]:
             kont = True
             break
     if kont == False:
-        print(productNew["stok kodu"], " ", productNew["ürün adı"])
+        translator = Translator()
+        print(productNew["stok kodu"], "-", productNew["ürün adı"])
         try:
             ekleneceklerList.append({"SKU": productNew["stok kodu"],
                                      "Type": productNew["product type"],
                                      "Name": translator.translate(productNew["ürün adı"]).text,
                                      "Published": productNew["status"],
-                                     "Description": "",
+                                     "Description": translator.translate(productNew["açıklama"]).text
+                                     if productNew["açıklama"] != None or productNew["açıklama"] != "" else "",
                                      "Stock": productNew["stok"],
                                      "Sale Price": productNew["indirimli fiyat"],
                                      "Regular Price": productNew["fiyat"],
@@ -401,6 +402,6 @@ regularpricechange(fiyatidegisenlerList)
 stockchange(stoguartanlarList + stoguazalanlarList)
 statuschange(statusdegisenlerlist)
 # dünkü xmli archive taşı
-# shutil.move('index_old.xml', 'xml_archive/stock_' + today + '.xml')
+shutil.move('index_old.xml', 'xml_archive/stock_' + today + '.xml')
 # bugünkü xmli işlenmiş xml dosyası yap
-# os.rename('index.xml', 'index_old.xml')
+os.rename('index.xml', 'index_old.xml')
