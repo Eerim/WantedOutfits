@@ -25,6 +25,7 @@ def progress(count, total, status=''):
 def removeProducts(products):
     contents = pd.DataFrame(pd.read_csv('products.csv', delimiter=','))
     for product in products:
+        print(product["stok kodu"], " has been deleted.")
         contents = contents.drop(
             contents[contents.SKU == product['stok kodu']].index, axis=0)
         contents.to_csv(r'products.csv', index=False)
@@ -34,6 +35,7 @@ def removeProducts(products):
 def salepricechange(products):
     contents = pd.DataFrame(pd.read_csv('products.csv', delimiter=','))
     for product in products:
+        print(product["stok kodu"], " sale price has been updated.")
         contents.loc[contents.SKU ==
                      product['stok kodu'], ['Sale price']] = product['yeni fiyat']
         contents.to_csv(r'products.csv', index=False)
@@ -43,7 +45,7 @@ def salepricechange(products):
 def regularpricechange(products):
     contents = pd.DataFrame(pd.read_csv('products.csv', delimiter=','))
     for product in products:
-        print(product['stok kodu'])
+        print(product["stok kodu"], " regular price has been updated.")
         contents.loc[contents.SKU ==
                      product['stok kodu'], ['Regular price']] = product['yeni fiyat']
         contents.to_csv(r'products.csv', index=False)
@@ -53,6 +55,7 @@ def regularpricechange(products):
 def stockchange(products):
     contents = pd.DataFrame(pd.read_csv('products.csv', delimiter=','))
     for product in products:
+        print(product["stok kodu"], " stock info has been updated.")
         contents.loc[contents.SKU ==
                      product['stok kodu'], ['Stock']] = product['yeni stok']
         contents.to_csv(r'products.csv', index=False)
@@ -60,8 +63,9 @@ def stockchange(products):
 
 
 def statuschange(products):
-    contents = pd.DataFrame(pd.read_csv('products1.csv', delimiter=','))
+    contents = pd.DataFrame(pd.read_csv('products.csv', delimiter=','))
     for product in products:
+        print(product["stok kodu"], " status info has been updated.")
         contents.loc[contents.SKU ==
                      product['stok kodu'], ['Published']] = product['yeni status']
         contents.to_csv(r'products.csv', index=False)
@@ -71,7 +75,7 @@ def statuschange(products):
 def addproducts2dataset(products):
     contents = pd.DataFrame(pd.read_csv('products.csv', delimiter=','))
     for product in products:
-        print(product["SKU"], "-", product["Name"])
+        print(product["SKU"], " - ", product["Name"], " has been added.")
         contents = contents.append(product, ignore_index=True)
         contents.to_csv(r'products.csv', index=False)
     print(len(products), " product(s) added. Please check NAME, DESCRIPTION, ATTIRIBUTE NAMES on database")
@@ -304,113 +308,113 @@ for productNew in productsNew:
     if kont == False:
         translator = Translator()
         c = CurrencyConverter()
-    try:
-        ekleneceklerList.append({"SKU": productNew["stok kodu"],
-                                 "Type": productNew["product type"],
-                                 "Name": translator.translate(productNew["ürün adı"]).text,
-                                 "Published": productNew["status"],
-                                 "Description": translator.translate(productNew["açıklama"]).text
-                                 if productNew["açıklama"] != None or productNew["açıklama"] != "" else "",
-                                 "Stock": productNew["stok"],
-                                 "Sale Price": c.convert(productNew["indirimli fiyat"], 'TRY', 'EUR') + 20,
-                                 "Regular Price": c.convert(productNew["fiyat"], 'TRY', 'EUR') + 20,
-                                 "Images": "" if productNew["product type"] == "variation" else
-                                 productNew["pic1"]+","+productNew["pic2"] +
-                                 ","+productNew["pic3"] +
-                                 ","+productNew["pic4"]
-                                 if productNew["pic4"] != None else productNew["pic1"]+","+productNew["pic2"] + ","+productNew["pic3"]
-                                 if productNew["pic3"] != None else productNew["pic1"]+","+productNew["pic2"]
-                                 if productNew["pic2"] != None else productNew["pic1"],
-                                 "Attribute 1 name": translator.translate(productNew["att1 name"]).text
-                                 if productNew["att1 name"] != None else productNew["att1 name"],
-                                 "Attribute 1 value(s)": translator.translate(productNew["att1 val"]).text
-                                 if productNew["att1 val"] != None and productNew["att1 val"] != [] else productNew["att1 val"],
-                                 "Attribute 2 name": translator.translate(productNew["att2 name"]).text
-                                 if productNew["att2 name"] != None else productNew["att2 name"],
-                                 "Attribute 2 value(s)": translator.translate(productNew["att2 val"]).text
-                                 if productNew["att2 val"] != None and productNew["att2 val"] != [] else productNew["att2 val"],
-                                 "Categories": "All products, All products > Clothing"
-                                 if productNew["ana kategori"] == "Takımlar" else "All products, All products > Clothing, All products > Clothing > Dresses "
-                                 if productNew["alt kategori"] == "Elbise" else "All products, All products > Clothing, All products > Clothing > Tops > Shirts &amp; Blouses, All products > Clothing > Tops"
-                                 if productNew["alt kategori"] == "Gömlek" or productNew["alt kategori"] == "Bluz" or productNew["alt kategori"] == "Kazak" else "All products, All products > Clothing, All products > Clothing > Coats"
-                                 if productNew["alt kategori"] == "Palto / Kaban" else "All products, All products > Clothing > Tops > Cardigans, All products > Clothing, All products > Clothing > Tops"
-                                 if productNew["alt kategori"] == "Hırka" else "All products, All products > Clothing, All products > Clothing > Tops > T-shirts, All products > Clothing > Tops"
-                                 if productNew["alt kategori"] == "Tişört" else "All products, All products > Clothing, All products > Clothing > Tops > Jackets, All products > Clothing > Tops"
-                                 if productNew["alt kategori"] == "Ceket" else "All products, All products > Clothing, All products > Clothing > Tops > Jumpers, All products > Clothing > Tops"
-                                 if productNew["alt kategori"] == "Sweat" else "All products, All products > Clothing, All products > Clothing > Trousers"
-                                 if productNew["alt kategori"] == "Pantolon" else "All products, All products > Clothing, All products > Clothing > Skirts"
-                                 if productNew["alt kategori"] == "Etek" else "All products, All products > Clothing, All products > Clothing > Leggings"
-                                 if productNew["alt kategori"] == "Tayt" else"All products, All products > Clothing, All products > Clothing > Jeans"
-                                 if productNew["alt kategori"] == "Jean Pantolon" else "All products, All products > Clothing",
-                                 "Is featured?": "0",
-                                 "Visibility in catalogue": "visible",
-                                 "Tax status": "taxable",
-                                 "Tax class": "parent"
-                                 if productNew["product type"] == "varitaion" else "",
-                                 "In stock?": "1"
-                                 if int(productNew["stok"]) > 0 else "0",
-                                 "Backorders allowed?": "0",
-                                 "Sold individually?": "0",
-                                 "Allow customer reviews?": "1",
-                                 "Parent": productNew["parent"],
-                                 "Position": "0",
-                                 "Attribute 1 visible": "1"
-                                 if productNew["product type"] == "variable" else "",
-                                 "Attribute 2 visible": "1"
-                                 if productNew["product type"] == "variable" and len(productNew["att2 name"]) != 0 else ""
-                                 })
-    except:
-        ekleneceklerList.append({"SKU": productNew["stok kodu"],
-                                 "Type": productNew["product type"],
-                                 "Name": productNew["ürün adı"],
-                                 "Published": productNew["status"],
-                                 "Description": "",
-                                 "Stock": productNew["stok"],
-                                 "Sale Price": productNew["indirimli fiyat"]
-                                 if productNew["indirimli fiyat"] != 0 and productNew["product type"] != "variable" else "",
-                                 "Regular Price": productNew["fiyat"]
-                                 if productNew["product type"] != "variable" else "",
-                                 "Images": "" if productNew["product type"] == "variation" else
-                                 productNew["pic1"]+","+productNew["pic2"] +
-                                 ","+productNew["pic3"] +
-                                 ","+productNew["pic4"]
-                                 if productNew["pic4"] != None else productNew["pic1"]+","+productNew["pic2"] + ","+productNew["pic3"]
-                                 if productNew["pic3"] != None else productNew["pic1"]+","+productNew["pic2"]
-                                 if productNew["pic2"] != None else productNew["pic1"],
-                                 "Attribute 1 name": productNew["att1 name"],
-                                 "Attribute 1 value(s)": productNew["att1 val"],
-                                 "Attribute 2 name": productNew["att2 name"],
-                                 "Attribute 2 value(s)": productNew["att2 val"],
-                                 "Categories": "All products, All products > Clothing"
-                                 if productNew["ana kategori"] == "Takımlar" else "All products, All products > Clothing, All products > Clothing > Dresses "
-                                 if productNew["alt kategori"] == "Elbise" else "All products, All products > Clothing, All products > Clothing > Tops > Shirts &amp; Blouses, All products > Clothing > Tops"
-                                 if productNew["alt kategori"] == "Gömlek" or productNew["alt kategori"] == "Bluz" or productNew["alt kategori"] == "Kazak" else "All products, All products > Clothing, All products > Clothing > Coats"
-                                 if productNew["alt kategori"] == "Palto / Kaban" else "All products, All products > Clothing > Tops > Cardigans, All products > Clothing, All products > Clothing > Tops"
-                                 if productNew["alt kategori"] == "Hırka" else "All products, All products > Clothing, All products > Clothing > Tops > T-shirts, All products > Clothing > Tops"
-                                 if productNew["alt kategori"] == "Tişört" else "All products, All products > Clothing, All products > Clothing > Tops > Jackets, All products > Clothing > Tops"
-                                 if productNew["alt kategori"] == "Ceket" else "All products, All products > Clothing, All products > Clothing > Tops > Jumpers, All products > Clothing > Tops"
-                                 if productNew["alt kategori"] == "Sweat" else "All products, All products > Clothing, All products > Clothing > Trousers"
-                                 if productNew["alt kategori"] == "Pantolon" else "All products, All products > Clothing, All products > Clothing > Skirts"
-                                 if productNew["alt kategori"] == "Etek" else "All products, All products > Clothing, All products > Clothing > Leggings"
-                                 if productNew["alt kategori"] == "Tayt" else"All products, All products > Clothing, All products > Clothing > Jeans"
-                                 if productNew["alt kategori"] == "Jean Pantolon" else "All products, All products > Clothing",
-                                 "Is featured?": "0",
-                                 "Visibility in catalogue": "visible",
-                                 "Tax status": "taxable",
-                                 "Tax class": "parent"
-                                 if productNew["product type"] == "varitaion" else "",
-                                 "In stock?": "1"
-                                 if int(productNew["stok"]) > 0 else "0",
-                                 "Backorders allowed?": "0",
-                                 "Sold individually?": "0",
-                                 "Allow customer reviews?": "1",
-                                 "Parent": productNew["parent"],
-                                 "Position": "0",
-                                 "Attribute 1 visible": "1"
-                                 if productNew["product type"] == "variable" else "",
-                                 "Attribute 2 visible": "1"
-                                 if productNew["product type"] == "variable" and len(productNew["att2 name"]) != 0 else ""
-                                 })
+        try:
+            ekleneceklerList.append({"SKU": productNew["stok kodu"],
+                                     "Type": productNew["product type"],
+                                     "Name": translator.translate(productNew["ürün adı"]).text,
+                                     "Published": productNew["status"],
+                                     "Description": translator.translate(productNew["açıklama"]).text
+                                     if productNew["açıklama"] != None or productNew["açıklama"] != "" else "",
+                                     "Stock": productNew["stok"],
+                                     "Sale Price": c.convert(productNew["indirimli fiyat"], 'TRY', 'EUR') + 20,
+                                     "Regular Price": c.convert(productNew["fiyat"], 'TRY', 'EUR') + 20,
+                                     "Images": "" if productNew["product type"] == "variation" else
+                                     productNew["pic1"]+","+productNew["pic2"] +
+                                     ","+productNew["pic3"] +
+                                     ","+productNew["pic4"]
+                                     if productNew["pic4"] != None else productNew["pic1"]+","+productNew["pic2"] + ","+productNew["pic3"]
+                                     if productNew["pic3"] != None else productNew["pic1"]+","+productNew["pic2"]
+                                     if productNew["pic2"] != None else productNew["pic1"],
+                                     "Attribute 1 name": translator.translate(productNew["att1 name"]).text
+                                     if productNew["att1 name"] != None else productNew["att1 name"],
+                                     "Attribute 1 value(s)": translator.translate(productNew["att1 val"]).text
+                                     if productNew["att1 val"] != None and productNew["att1 val"] != [] else productNew["att1 val"],
+                                     "Attribute 2 name": translator.translate(productNew["att2 name"]).text
+                                     if productNew["att2 name"] != None else productNew["att2 name"],
+                                     "Attribute 2 value(s)": translator.translate(productNew["att2 val"]).text
+                                     if productNew["att2 val"] != None and productNew["att2 val"] != [] else productNew["att2 val"],
+                                     "Categories": "All products, All products > Clothing"
+                                     if productNew["ana kategori"] == "Takımlar" else "All products, All products > Clothing, All products > Clothing > Dresses "
+                                     if productNew["alt kategori"] == "Elbise" else "All products, All products > Clothing, All products > Clothing > Tops > Shirts &amp; Blouses, All products > Clothing > Tops"
+                                     if productNew["alt kategori"] == "Gömlek" or productNew["alt kategori"] == "Bluz" or productNew["alt kategori"] == "Kazak" else "All products, All products > Clothing, All products > Clothing > Coats"
+                                     if productNew["alt kategori"] == "Palto / Kaban" else "All products, All products > Clothing > Tops > Cardigans, All products > Clothing, All products > Clothing > Tops"
+                                     if productNew["alt kategori"] == "Hırka" else "All products, All products > Clothing, All products > Clothing > Tops > T-shirts, All products > Clothing > Tops"
+                                     if productNew["alt kategori"] == "Tişört" else "All products, All products > Clothing, All products > Clothing > Tops > Jackets, All products > Clothing > Tops"
+                                     if productNew["alt kategori"] == "Ceket" else "All products, All products > Clothing, All products > Clothing > Tops > Jumpers, All products > Clothing > Tops"
+                                     if productNew["alt kategori"] == "Sweat" else "All products, All products > Clothing, All products > Clothing > Trousers"
+                                     if productNew["alt kategori"] == "Pantolon" else "All products, All products > Clothing, All products > Clothing > Skirts"
+                                     if productNew["alt kategori"] == "Etek" else "All products, All products > Clothing, All products > Clothing > Leggings"
+                                     if productNew["alt kategori"] == "Tayt" else"All products, All products > Clothing, All products > Clothing > Jeans"
+                                     if productNew["alt kategori"] == "Jean Pantolon" else "All products, All products > Clothing",
+                                     "Is featured?": "0",
+                                     "Visibility in catalogue": "visible",
+                                     "Tax status": "taxable",
+                                     "Tax class": "parent"
+                                     if productNew["product type"] == "varitaion" else "",
+                                     "In stock?": "1"
+                                     if int(productNew["stok"]) > 0 else "0",
+                                     "Backorders allowed?": "0",
+                                     "Sold individually?": "0",
+                                     "Allow customer reviews?": "1",
+                                     "Parent": productNew["parent"],
+                                     "Position": "0",
+                                     "Attribute 1 visible": "1"
+                                     if productNew["product type"] == "variable" else "",
+                                     "Attribute 2 visible": "1"
+                                     if productNew["product type"] == "variable" and len(productNew["att2 name"]) != 0 else ""
+                                     })
+        except:
+            ekleneceklerList.append({"SKU": productNew["stok kodu"],
+                                     "Type": productNew["product type"],
+                                     "Name": productNew["ürün adı"],
+                                     "Published": productNew["status"],
+                                     "Description": "",
+                                     "Stock": productNew["stok"],
+                                     "Sale Price": productNew["indirimli fiyat"]
+                                     if productNew["indirimli fiyat"] != 0 and productNew["product type"] != "variable" else "",
+                                     "Regular Price": productNew["fiyat"]
+                                     if productNew["product type"] != "variable" else "",
+                                     "Images": "" if productNew["product type"] == "variation" else
+                                     productNew["pic1"]+","+productNew["pic2"] +
+                                     ","+productNew["pic3"] +
+                                     ","+productNew["pic4"]
+                                     if productNew["pic4"] != None else productNew["pic1"]+","+productNew["pic2"] + ","+productNew["pic3"]
+                                     if productNew["pic3"] != None else productNew["pic1"]+","+productNew["pic2"]
+                                     if productNew["pic2"] != None else productNew["pic1"],
+                                     "Attribute 1 name": productNew["att1 name"],
+                                     "Attribute 1 value(s)": productNew["att1 val"],
+                                     "Attribute 2 name": productNew["att2 name"],
+                                     "Attribute 2 value(s)": productNew["att2 val"],
+                                     "Categories": "All products, All products > Clothing"
+                                     if productNew["ana kategori"] == "Takımlar" else "All products, All products > Clothing, All products > Clothing > Dresses "
+                                     if productNew["alt kategori"] == "Elbise" else "All products, All products > Clothing, All products > Clothing > Tops > Shirts &amp; Blouses, All products > Clothing > Tops"
+                                     if productNew["alt kategori"] == "Gömlek" or productNew["alt kategori"] == "Bluz" or productNew["alt kategori"] == "Kazak" else "All products, All products > Clothing, All products > Clothing > Coats"
+                                     if productNew["alt kategori"] == "Palto / Kaban" else "All products, All products > Clothing > Tops > Cardigans, All products > Clothing, All products > Clothing > Tops"
+                                     if productNew["alt kategori"] == "Hırka" else "All products, All products > Clothing, All products > Clothing > Tops > T-shirts, All products > Clothing > Tops"
+                                     if productNew["alt kategori"] == "Tişört" else "All products, All products > Clothing, All products > Clothing > Tops > Jackets, All products > Clothing > Tops"
+                                     if productNew["alt kategori"] == "Ceket" else "All products, All products > Clothing, All products > Clothing > Tops > Jumpers, All products > Clothing > Tops"
+                                     if productNew["alt kategori"] == "Sweat" else "All products, All products > Clothing, All products > Clothing > Trousers"
+                                     if productNew["alt kategori"] == "Pantolon" else "All products, All products > Clothing, All products > Clothing > Skirts"
+                                     if productNew["alt kategori"] == "Etek" else "All products, All products > Clothing, All products > Clothing > Leggings"
+                                     if productNew["alt kategori"] == "Tayt" else"All products, All products > Clothing, All products > Clothing > Jeans"
+                                     if productNew["alt kategori"] == "Jean Pantolon" else "All products, All products > Clothing",
+                                     "Is featured?": "0",
+                                     "Visibility in catalogue": "visible",
+                                     "Tax status": "taxable",
+                                     "Tax class": "parent"
+                                     if productNew["product type"] == "varitaion" else "",
+                                     "In stock?": "1"
+                                     if int(productNew["stok"]) > 0 else "0",
+                                     "Backorders allowed?": "0",
+                                     "Sold individually?": "0",
+                                     "Allow customer reviews?": "1",
+                                     "Parent": productNew["parent"],
+                                     "Position": "0",
+                                     "Attribute 1 visible": "1"
+                                     if productNew["product type"] == "variable" else "",
+                                     "Attribute 2 visible": "1"
+                                     if productNew["product type"] == "variable" and len(productNew["att2 name"]) != 0 else ""
+                                     })
 removeProducts(cikarilacaklarList)
 addproducts2dataset(ekleneceklerList)
 salepricechange(indirimegirenlerList + indirimibitenlerList)
@@ -419,5 +423,6 @@ stockchange(stoguartanlarList + stoguazalanlarList)
 statuschange(statusdegisenlerlist)
 # dünkü xmli archive taşı
 shutil.move('index_old.xml', 'xml_archive/stock_' + today + '.xml')
+shutil.copy('products.csv', 'csv_archive/stock_' + today + '.csv')
 # bugünkü xmli işlenmiş xml dosyası yap
 os.rename('index.xml', 'index_old.xml')
